@@ -42,14 +42,6 @@ export const App = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useAsyncEffect(async () => {
-    try {
-      await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-    } catch (e) {
-      alert("カメラとマイクの利用を許可してください");
-    }
-  }, []);
-
-  useAsyncEffect(async () => {
     const devices = await navigator.mediaDevices.enumerateDevices();
     setVideoDevices(devices.filter((dev) => dev.kind === "videoinput"));
     setAudioDevices(devices.filter((dev) => dev.kind === "audioinput"));
