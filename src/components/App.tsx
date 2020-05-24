@@ -36,7 +36,7 @@ export const App = () => {
   const query = useMemo(() => qs.parse(location.search.slice(1)), []);
 
   const [state, setState] = useImmer<State>({
-    peerId: "",
+    peerId: query.peer_id ?? null,
     theirId:
       (query.host_id as string) ??
       localStorage.getItem(StorageKey.theirId) ??
@@ -62,7 +62,7 @@ export const App = () => {
 
   // Peerのセットアップ
   useAsyncEffect(async () => {
-    peerRef.current = new Peer({
+    peerRef.current = new Peer(state.peerId, {
       key: process.env.API_KEY,
       debug: 3,
     });
@@ -105,10 +105,11 @@ export const App = () => {
       audio: {
         deviceId: state.audioDeviceId,
         echoCancellation: false,
-        sampleRate: 48000,
-        sampleSize: 320,
-        channelCount: 2,
+        noiseSuppression: false,
         autoGainControl: false,
+        sampleSize: 16,
+        sampleRate: 48000,
+        channelCount: 2,
       },
     });
 
@@ -266,9 +267,11 @@ const Button = styled.button`
   background-color: #fff;
   line-height: 1.4;
   display: inline-block;
+  border: none;
   border-radius: 6px;
   padding: 2px 8px;
   outline: none;
+  appearance: none;
 
   &:active {
     background-color: #ddd;
