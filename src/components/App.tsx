@@ -1,8 +1,15 @@
-import React, { useRef, useCallback, ChangeEvent, useState } from "react";
+import React, {
+  useRef,
+  useCallback,
+  ChangeEvent,
+  useState,
+  useMemo,
+} from "react";
 import { useEffect } from "react";
 import styled, { createGlobalStyle } from "styled-components";
 import { useImmer } from "use-immer";
 import Peer, { MediaConnection } from "skyway-js";
+import qs from "querystring";
 
 enum StorageKey {
   videoDeviceId = "videoDeviceId",
@@ -25,9 +32,14 @@ const useAsyncEffect = (callback: any, deps: any[]) => {
 };
 
 export const App = () => {
+  const query = useMemo(() => qs.parse(location.search.slice(1)), []);
+
   const [state, setState] = useImmer<State>({
     peerId: "",
-    theirId: localStorage.getItem(StorageKey.theirId) ?? "",
+    theirId:
+      (query.host_id as string) ??
+      localStorage.getItem(StorageKey.theirId) ??
+      "",
     audioDeviceId: localStorage.getItem(StorageKey.audioDeviceId) ?? null,
     videoDeviceId: localStorage.getItem(StorageKey.videoDeviceId) ?? null,
     status: "pause",
