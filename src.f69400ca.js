@@ -54729,29 +54729,29 @@ var useAsyncEffect = function useAsyncEffect(callback, deps) {
 };
 
 exports.App = function () {
-  var _a, _b, _c, _d;
+  var _a, _b, _c, _d, _e;
 
   var query = react_1.useMemo(function () {
     return querystring_1.default.parse(location.search.slice(1));
   }, []);
 
-  var _e = use_immer_1.useImmer({
-    peerId: "",
-    theirId: (_b = (_a = query.host_id) !== null && _a !== void 0 ? _a : localStorage.getItem(StorageKey.theirId)) !== null && _b !== void 0 ? _b : "",
-    audioDeviceId: (_c = localStorage.getItem(StorageKey.audioDeviceId)) !== null && _c !== void 0 ? _c : null,
-    videoDeviceId: (_d = localStorage.getItem(StorageKey.videoDeviceId)) !== null && _d !== void 0 ? _d : null,
+  var _f = use_immer_1.useImmer({
+    peerId: (_a = query.peer_id) !== null && _a !== void 0 ? _a : null,
+    theirId: (_c = (_b = query.host_id) !== null && _b !== void 0 ? _b : localStorage.getItem(StorageKey.theirId)) !== null && _c !== void 0 ? _c : "",
+    audioDeviceId: (_d = localStorage.getItem(StorageKey.audioDeviceId)) !== null && _d !== void 0 ? _d : null,
+    videoDeviceId: (_e = localStorage.getItem(StorageKey.videoDeviceId)) !== null && _e !== void 0 ? _e : null,
     status: "pause"
   }),
-      state = _e[0],
-      setState = _e[1];
-
-  var _f = react_1.useState([]),
-      videoDevices = _f[0],
-      setVideoDevices = _f[1];
+      state = _f[0],
+      setState = _f[1];
 
   var _g = react_1.useState([]),
-      audioDevices = _g[0],
-      setAudioDevices = _g[1];
+      videoDevices = _g[0],
+      setVideoDevices = _g[1];
+
+  var _h = react_1.useState([]),
+      audioDevices = _h[0],
+      setAudioDevices = _h[1];
 
   var peerRef = react_1.useRef(null);
   var mediaConenction = react_1.useRef(null);
@@ -54786,7 +54786,7 @@ exports.App = function () {
   useAsyncEffect(function () {
     return __awaiter(void 0, void 0, void 0, function () {
       return __generator(this, function (_a) {
-        peerRef.current = new skyway_js_1.default({
+        peerRef.current = new skyway_js_1.default(state.peerId, {
           key: "49e2c537-f356-497a-8efd-10d64fc65d46",
           debug: 3
         });
@@ -54835,14 +54835,21 @@ exports.App = function () {
                 height: 720
               },
               audio: {
-                deviceId: state.audioDeviceId
+                deviceId: state.audioDeviceId,
+                echoCancellation: false,
+                noiseSuppression: false,
+                autoGainControl: false,
+                sampleSize: 16,
+                sampleRate: 48000,
+                channelCount: 2
               }
             })];
 
           case 1:
             _a.current = _b.sent();
             mediaConenction.current = peerRef.current.call(state.theirId, streamRef.current, {
-              audioBandwidth: 320
+              audioBandwidth: 320,
+              audioCodec: "opus"
             });
             videoRef.current.srcObject = streamRef.current;
             videoRef.current.muted = true;
@@ -54926,7 +54933,7 @@ exports.App = function () {
 
 var GlobalStyle = styled_components_1.createGlobalStyle(templateObject_1 || (templateObject_1 = __makeTemplateObject(["\n  html, body {\n    width: 100%;\n    height: 100%;\n    margin: 0;\n    padding: 0;\n  }\n\n\n  *, *::before, *::after {\n    box-sizing: border-box;\n  }\n\n  #root {\n    display: flex;\n    width: 100%;\n    height: 100%;\n  }\n"], ["\n  html, body {\n    width: 100%;\n    height: 100%;\n    margin: 0;\n    padding: 0;\n  }\n\n\n  *, *::before, *::after {\n    box-sizing: border-box;\n  }\n\n  #root {\n    display: flex;\n    width: 100%;\n    height: 100%;\n  }\n"])));
 var Root = styled_components_1.default.div(templateObject_2 || (templateObject_2 = __makeTemplateObject(["\n  display: flex;\n  flex-flow: column;\n  width: 100%;\n  height: 100%;\n  background-color: #111;\n  color: #fff;\n"], ["\n  display: flex;\n  flex-flow: column;\n  width: 100%;\n  height: 100%;\n  background-color: #111;\n  color: #fff;\n"])));
-var Button = styled_components_1.default.button(templateObject_3 || (templateObject_3 = __makeTemplateObject(["\n  background-color: #fff;\n  line-height: 1.4;\n  display: inline-block;\n  border-radius: 6px;\n  padding: 2px 8px;\n  outline: none;\n\n  &:active {\n    background-color: #ddd;\n  }\n"], ["\n  background-color: #fff;\n  line-height: 1.4;\n  display: inline-block;\n  border-radius: 6px;\n  padding: 2px 8px;\n  outline: none;\n\n  &:active {\n    background-color: #ddd;\n  }\n"])));
+var Button = styled_components_1.default.button(templateObject_3 || (templateObject_3 = __makeTemplateObject(["\n  background-color: #fff;\n  line-height: 1.4;\n  display: inline-block;\n  border: none;\n  border-radius: 6px;\n  padding: 2px 8px;\n  outline: none;\n  appearance: none;\n\n  &:active {\n    background-color: #ddd;\n  }\n"], ["\n  background-color: #fff;\n  line-height: 1.4;\n  display: inline-block;\n  border: none;\n  border-radius: 6px;\n  padding: 2px 8px;\n  outline: none;\n  appearance: none;\n\n  &:active {\n    background-color: #ddd;\n  }\n"])));
 var MetaArea = styled_components_1.default.div(templateObject_4 || (templateObject_4 = __makeTemplateObject(["\n  display: flex;\n  gap: 16px;\n  width: 100%;\n  padding: 4px;\n\n  ", "\n"], ["\n  display: flex;\n  gap: 16px;\n  width: 100%;\n  padding: 4px;\n\n  ", "\n"])), function (_a) {
   var disabled = _a.disabled;
   return disabled && "opacity: .5;";
@@ -55137,7 +55144,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63563" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51962" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
