@@ -54264,7 +54264,187 @@ var Buffer = require("buffer").Buffer;
     })["default"]
   );
 });
-},{"process":"../node_modules/process/browser.js","buffer":"../node_modules/buffer/index.js"}],"components/App.tsx":[function(require,module,exports) {
+},{"process":"../node_modules/process/browser.js","buffer":"../node_modules/buffer/index.js"}],"../node_modules/querystring-es3/decode.js":[function(require,module,exports) {
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+'use strict'; // If obj.hasOwnProperty has been overridden, then calling
+// obj.hasOwnProperty(prop) will break.
+// See: https://github.com/joyent/node/issues/1707
+
+function hasOwnProperty(obj, prop) {
+  return Object.prototype.hasOwnProperty.call(obj, prop);
+}
+
+module.exports = function (qs, sep, eq, options) {
+  sep = sep || '&';
+  eq = eq || '=';
+  var obj = {};
+
+  if (typeof qs !== 'string' || qs.length === 0) {
+    return obj;
+  }
+
+  var regexp = /\+/g;
+  qs = qs.split(sep);
+  var maxKeys = 1000;
+
+  if (options && typeof options.maxKeys === 'number') {
+    maxKeys = options.maxKeys;
+  }
+
+  var len = qs.length; // maxKeys <= 0 means that we should not limit keys count
+
+  if (maxKeys > 0 && len > maxKeys) {
+    len = maxKeys;
+  }
+
+  for (var i = 0; i < len; ++i) {
+    var x = qs[i].replace(regexp, '%20'),
+        idx = x.indexOf(eq),
+        kstr,
+        vstr,
+        k,
+        v;
+
+    if (idx >= 0) {
+      kstr = x.substr(0, idx);
+      vstr = x.substr(idx + 1);
+    } else {
+      kstr = x;
+      vstr = '';
+    }
+
+    k = decodeURIComponent(kstr);
+    v = decodeURIComponent(vstr);
+
+    if (!hasOwnProperty(obj, k)) {
+      obj[k] = v;
+    } else if (isArray(obj[k])) {
+      obj[k].push(v);
+    } else {
+      obj[k] = [obj[k], v];
+    }
+  }
+
+  return obj;
+};
+
+var isArray = Array.isArray || function (xs) {
+  return Object.prototype.toString.call(xs) === '[object Array]';
+};
+},{}],"../node_modules/querystring-es3/encode.js":[function(require,module,exports) {
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+'use strict';
+
+var stringifyPrimitive = function (v) {
+  switch (typeof v) {
+    case 'string':
+      return v;
+
+    case 'boolean':
+      return v ? 'true' : 'false';
+
+    case 'number':
+      return isFinite(v) ? v : '';
+
+    default:
+      return '';
+  }
+};
+
+module.exports = function (obj, sep, eq, name) {
+  sep = sep || '&';
+  eq = eq || '=';
+
+  if (obj === null) {
+    obj = undefined;
+  }
+
+  if (typeof obj === 'object') {
+    return map(objectKeys(obj), function (k) {
+      var ks = encodeURIComponent(stringifyPrimitive(k)) + eq;
+
+      if (isArray(obj[k])) {
+        return map(obj[k], function (v) {
+          return ks + encodeURIComponent(stringifyPrimitive(v));
+        }).join(sep);
+      } else {
+        return ks + encodeURIComponent(stringifyPrimitive(obj[k]));
+      }
+    }).join(sep);
+  }
+
+  if (!name) return '';
+  return encodeURIComponent(stringifyPrimitive(name)) + eq + encodeURIComponent(stringifyPrimitive(obj));
+};
+
+var isArray = Array.isArray || function (xs) {
+  return Object.prototype.toString.call(xs) === '[object Array]';
+};
+
+function map(xs, f) {
+  if (xs.map) return xs.map(f);
+  var res = [];
+
+  for (var i = 0; i < xs.length; i++) {
+    res.push(f(xs[i], i));
+  }
+
+  return res;
+}
+
+var objectKeys = Object.keys || function (obj) {
+  var res = [];
+
+  for (var key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) res.push(key);
+  }
+
+  return res;
+};
+},{}],"../node_modules/querystring-es3/index.js":[function(require,module,exports) {
+'use strict';
+
+exports.decode = exports.parse = require('./decode');
+exports.encode = exports.stringify = require('./encode');
+},{"./decode":"../node_modules/querystring-es3/decode.js","./encode":"../node_modules/querystring-es3/encode.js"}],"components/App.tsx":[function(require,module,exports) {
 "use strict";
 
 var __makeTemplateObject = this && this.__makeTemplateObject || function (cooked, raw) {
@@ -54477,6 +54657,8 @@ var use_immer_1 = require("use-immer");
 
 var skyway_js_1 = __importDefault(require("skyway-js"));
 
+var querystring_1 = __importDefault(require("querystring"));
+
 var StorageKey;
 
 (function (StorageKey) {
@@ -54492,67 +54674,34 @@ var useAsyncEffect = function useAsyncEffect(callback, deps) {
 };
 
 exports.App = function () {
-  var _a, _b, _c;
+  var _a, _b, _c, _d;
 
-  var _d = use_immer_1.useImmer({
+  var query = react_1.useMemo(function () {
+    return querystring_1.default.parse(location.search.slice(1));
+  }, []);
+
+  var _e = use_immer_1.useImmer({
     peerId: "",
-    theirId: (_a = localStorage.getItem(StorageKey.theirId)) !== null && _a !== void 0 ? _a : null,
-    audioDeviceId: (_b = localStorage.getItem(StorageKey.audioDeviceId)) !== null && _b !== void 0 ? _b : null,
-    videoDeviceId: (_c = localStorage.getItem(StorageKey.videoDeviceId)) !== null && _c !== void 0 ? _c : null,
+    theirId: (_b = (_a = query.host_id) !== null && _a !== void 0 ? _a : localStorage.getItem(StorageKey.theirId)) !== null && _b !== void 0 ? _b : "",
+    audioDeviceId: (_c = localStorage.getItem(StorageKey.audioDeviceId)) !== null && _c !== void 0 ? _c : null,
+    videoDeviceId: (_d = localStorage.getItem(StorageKey.videoDeviceId)) !== null && _d !== void 0 ? _d : null,
     status: "pause"
   }),
-      state = _d[0],
-      setState = _d[1];
-
-  var _e = react_1.useState([]),
-      videoDevices = _e[0],
-      setVideoDevices = _e[1];
+      state = _e[0],
+      setState = _e[1];
 
   var _f = react_1.useState([]),
-      audioDevices = _f[0],
-      setAudioDevices = _f[1];
+      videoDevices = _f[0],
+      setVideoDevices = _f[1];
+
+  var _g = react_1.useState([]),
+      audioDevices = _g[0],
+      setAudioDevices = _g[1];
 
   var peerRef = react_1.useRef(null);
   var mediaConenction = react_1.useRef(null);
   var streamRef = react_1.useRef(null);
   var videoRef = react_1.useRef(null);
-  useAsyncEffect(function () {
-    return __awaiter(void 0, void 0, void 0, function () {
-      var e_1;
-      return __generator(this, function (_a) {
-        switch (_a.label) {
-          case 0:
-            _a.trys.push([0, 2,, 3]);
-
-            return [4
-            /*yield*/
-            , navigator.mediaDevices.getUserMedia({
-              video: true,
-              audio: true
-            })];
-
-          case 1:
-            _a.sent();
-
-            return [3
-            /*break*/
-            , 3];
-
-          case 2:
-            e_1 = _a.sent();
-            alert("カメラとマイクの利用を許可してください");
-            return [3
-            /*break*/
-            , 3];
-
-          case 3:
-            return [2
-            /*return*/
-            ];
-        }
-      });
-    });
-  }, []);
   useAsyncEffect(function () {
     return __awaiter(void 0, void 0, void 0, function () {
       var devices;
@@ -54716,7 +54865,7 @@ var PreviewArea = styled_components_1.default.div(templateObject_4 || (templateO
 var SendingOverlay = styled_components_1.default.div(templateObject_5 || (templateObject_5 = __makeTemplateObject(["\n  position: fixed;\n  top: 0;\n  left: 0;\n  z-index: 1;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  width: 100%;\n  height: 100%;\n  background-color: rgba(0, 0, 0, 0.5);\n  color: #fff;\n"], ["\n  position: fixed;\n  top: 0;\n  left: 0;\n  z-index: 1;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  width: 100%;\n  height: 100%;\n  background-color: rgba(0, 0, 0, 0.5);\n  color: #fff;\n"])));
 var PreviewVideo = styled_components_1.default.video(templateObject_6 || (templateObject_6 = __makeTemplateObject(["\n  object-fit: contain;\n  width: 100%;\n"], ["\n  object-fit: contain;\n  width: 100%;\n"])));
 var templateObject_1, templateObject_2, templateObject_3, templateObject_4, templateObject_5, templateObject_6;
-},{"react":"../node_modules/react/index.js","styled-components":"../node_modules/styled-components/dist/styled-components.browser.esm.js","use-immer":"../node_modules/use-immer/dist/use-immer.module.js","skyway-js":"../node_modules/skyway-js/dist/skyway.js"}],"index.tsx":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","styled-components":"../node_modules/styled-components/dist/styled-components.browser.esm.js","use-immer":"../node_modules/use-immer/dist/use-immer.module.js","skyway-js":"../node_modules/skyway-js/dist/skyway.js","querystring":"../node_modules/querystring-es3/index.js"}],"index.tsx":[function(require,module,exports) {
 "use strict";
 
 var __awaiter = this && this.__awaiter || function (thisArg, _arguments, P, generator) {
@@ -54918,7 +55067,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52004" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "62280" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
