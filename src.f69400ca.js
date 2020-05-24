@@ -54444,7 +54444,60 @@ var objectKeys = Object.keys || function (obj) {
 
 exports.decode = exports.parse = require('./decode');
 exports.encode = exports.stringify = require('./encode');
-},{"./decode":"../node_modules/querystring-es3/decode.js","./encode":"../node_modules/querystring-es3/encode.js"}],"components/App.tsx":[function(require,module,exports) {
+},{"./decode":"../node_modules/querystring-es3/decode.js","./encode":"../node_modules/querystring-es3/encode.js"}],"../node_modules/copy-text-to-clipboard/index.js":[function(require,module,exports) {
+'use strict';
+
+var copyTextToClipboard = function (input) {
+  var {
+    target = document.body
+  } = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  var element = document.createElement('textarea');
+  var previouslyFocusedElement = document.activeElement;
+  element.value = input; // Prevent keyboard from showing on mobile
+
+  element.setAttribute('readonly', '');
+  element.style.contain = 'strict';
+  element.style.position = 'absolute';
+  element.style.left = '-9999px';
+  element.style.fontSize = '12pt'; // Prevent zooming on iOS
+
+  var selection = document.getSelection();
+  var originalRange = false;
+
+  if (selection.rangeCount > 0) {
+    originalRange = selection.getRangeAt(0);
+  }
+
+  target.append(element);
+  element.select(); // Explicit selection workaround for iOS
+
+  element.selectionStart = 0;
+  element.selectionEnd = input.length;
+  var isSuccess = false;
+
+  try {
+    isSuccess = document.execCommand('copy');
+  } catch (_) {}
+
+  element.remove();
+
+  if (originalRange) {
+    selection.removeAllRanges();
+    selection.addRange(originalRange);
+  } // Get the focus back on the previously focused element, if any
+
+
+  if (previouslyFocusedElement) {
+    previouslyFocusedElement.focus();
+  }
+
+  return isSuccess;
+};
+
+module.exports = copyTextToClipboard; // TODO: Remove this for the next major release
+
+module.exports.default = copyTextToClipboard;
+},{}],"components/App.tsx":[function(require,module,exports) {
 "use strict";
 
 var __makeTemplateObject = this && this.__makeTemplateObject || function (cooked, raw) {
@@ -54659,6 +54712,8 @@ var skyway_js_1 = __importDefault(require("skyway-js"));
 
 var querystring_1 = __importDefault(require("querystring"));
 
+var copy_text_to_clipboard_1 = __importDefault(require("copy-text-to-clipboard"));
+
 var StorageKey;
 
 (function (StorageKey) {
@@ -54816,23 +54871,37 @@ exports.App = function () {
     });
     localStorage.setItem(StorageKey.audioDeviceId, e.currentTarget.value);
   }, []);
+  var handleClickShareLink = react_1.useCallback(function () {
+    var port = location.port !== "" ? ":" + location.port : "";
+    var url = location.protocol + "//" + location.hostname + port + location.pathname;
+    copy_text_to_clipboard_1.default(url + "?host_id=" + state.peerId);
+  }, [state]);
   return react_1.default.createElement(Root, null, react_1.default.createElement(GlobalStyle, null), react_1.default.createElement(MetaArea, {
     disabled: state.status === "connected"
-  }, react_1.default.createElement("div", null, react_1.default.createElement("div", null, "PeerId:", react_1.default.createElement("input", {
+  }, react_1.default.createElement("div", null, react_1.default.createElement("div", null, "PeerId: ", react_1.default.createElement("input", {
     value: state.peerId,
     readOnly: true
-  })), react_1.default.createElement("div", null, "\u63A5\u7D9A\u5148Id:", " ", react_1.default.createElement("input", {
+  }), react_1.default.createElement(Button, {
+    type: "button",
+    onClick: handleClickShareLink,
+    style: {
+      marginLeft: "4px"
+    }
+  }, "\u30B2\u30B9\u30C8\u62DB\u5F85URL\u3092\u30B3\u30D4\u30FC")), react_1.default.createElement("div", null, "\u63A5\u7D9A\u5148Id:", " ", react_1.default.createElement("input", {
     type: "text",
     value: state.theirId,
     onChange: handleChangeTheirId
-  }), react_1.default.createElement("button", {
+  }), react_1.default.createElement(Button, {
     type: "button",
-    onClick: handleConnect
+    onClick: handleConnect,
+    style: {
+      marginLeft: "4px"
+    }
   }, "\u63A5\u7D9A"))), react_1.default.createElement("div", {
     style: {
       marginLeft: "auto"
     }
-  }, react_1.default.createElement("div", null, "Video:", react_1.default.createElement("select", {
+  }, react_1.default.createElement("div", null, "\u30D3\u30C7\u30AA\u5165\u529B:", react_1.default.createElement("select", {
     onChange: handleChangeVideoDevice
   }, videoDevices.map(function (dev) {
     var _a;
@@ -54841,7 +54910,7 @@ exports.App = function () {
       selected: dev.deviceId === state.videoDeviceId,
       value: dev.deviceId
     }, (_a = dev.label) !== null && _a !== void 0 ? _a : dev.deviceId);
-  }))), react_1.default.createElement("div", null, "Audio:", react_1.default.createElement("select", {
+  }))), react_1.default.createElement("div", null, "\u30AA\u30FC\u30C7\u30A3\u30AA\u5165\u529B:", react_1.default.createElement("select", {
     onChange: handleChangeAudioDevice
   }, audioDevices.map(function (dev) {
     var _a;
@@ -54857,15 +54926,16 @@ exports.App = function () {
 
 var GlobalStyle = styled_components_1.createGlobalStyle(templateObject_1 || (templateObject_1 = __makeTemplateObject(["\n  html, body {\n    width: 100%;\n    height: 100%;\n    margin: 0;\n    padding: 0;\n  }\n\n\n  *, *::before, *::after {\n    box-sizing: border-box;\n  }\n\n  #root {\n    display: flex;\n    width: 100%;\n    height: 100%;\n  }\n"], ["\n  html, body {\n    width: 100%;\n    height: 100%;\n    margin: 0;\n    padding: 0;\n  }\n\n\n  *, *::before, *::after {\n    box-sizing: border-box;\n  }\n\n  #root {\n    display: flex;\n    width: 100%;\n    height: 100%;\n  }\n"])));
 var Root = styled_components_1.default.div(templateObject_2 || (templateObject_2 = __makeTemplateObject(["\n  display: flex;\n  flex-flow: column;\n  width: 100%;\n  height: 100%;\n  background-color: #111;\n  color: #fff;\n"], ["\n  display: flex;\n  flex-flow: column;\n  width: 100%;\n  height: 100%;\n  background-color: #111;\n  color: #fff;\n"])));
-var MetaArea = styled_components_1.default.div(templateObject_3 || (templateObject_3 = __makeTemplateObject(["\n  display: flex;\n  gap: 16px;\n  width: 100%;\n  padding: 4px;\n\n  ", "\n"], ["\n  display: flex;\n  gap: 16px;\n  width: 100%;\n  padding: 4px;\n\n  ", "\n"])), function (_a) {
+var Button = styled_components_1.default.button(templateObject_3 || (templateObject_3 = __makeTemplateObject(["\n  background-color: #fff;\n  line-height: 1.4;\n  display: inline-block;\n  border-radius: 6px;\n  padding: 2px 8px;\n  outline: none;\n\n  &:active {\n    background-color: #ddd;\n  }\n"], ["\n  background-color: #fff;\n  line-height: 1.4;\n  display: inline-block;\n  border-radius: 6px;\n  padding: 2px 8px;\n  outline: none;\n\n  &:active {\n    background-color: #ddd;\n  }\n"])));
+var MetaArea = styled_components_1.default.div(templateObject_4 || (templateObject_4 = __makeTemplateObject(["\n  display: flex;\n  gap: 16px;\n  width: 100%;\n  padding: 4px;\n\n  ", "\n"], ["\n  display: flex;\n  gap: 16px;\n  width: 100%;\n  padding: 4px;\n\n  ", "\n"])), function (_a) {
   var disabled = _a.disabled;
   return disabled && "opacity: .5;";
 });
-var PreviewArea = styled_components_1.default.div(templateObject_4 || (templateObject_4 = __makeTemplateObject(["\n  position: relative;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  width: 100%;\n  height: 100%;\n  padding: 16px;\n"], ["\n  position: relative;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  width: 100%;\n  height: 100%;\n  padding: 16px;\n"])));
-var SendingOverlay = styled_components_1.default.div(templateObject_5 || (templateObject_5 = __makeTemplateObject(["\n  position: fixed;\n  top: 0;\n  left: 0;\n  z-index: 1;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  width: 100%;\n  height: 100%;\n  background-color: rgba(0, 0, 0, 0.5);\n  color: #fff;\n"], ["\n  position: fixed;\n  top: 0;\n  left: 0;\n  z-index: 1;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  width: 100%;\n  height: 100%;\n  background-color: rgba(0, 0, 0, 0.5);\n  color: #fff;\n"])));
-var PreviewVideo = styled_components_1.default.video(templateObject_6 || (templateObject_6 = __makeTemplateObject(["\n  object-fit: contain;\n  width: 100%;\n"], ["\n  object-fit: contain;\n  width: 100%;\n"])));
-var templateObject_1, templateObject_2, templateObject_3, templateObject_4, templateObject_5, templateObject_6;
-},{"react":"../node_modules/react/index.js","styled-components":"../node_modules/styled-components/dist/styled-components.browser.esm.js","use-immer":"../node_modules/use-immer/dist/use-immer.module.js","skyway-js":"../node_modules/skyway-js/dist/skyway.js","querystring":"../node_modules/querystring-es3/index.js"}],"index.tsx":[function(require,module,exports) {
+var PreviewArea = styled_components_1.default.div(templateObject_5 || (templateObject_5 = __makeTemplateObject(["\n  position: relative;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  width: 100%;\n  height: 100%;\n  padding: 16px;\n"], ["\n  position: relative;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  width: 100%;\n  height: 100%;\n  padding: 16px;\n"])));
+var SendingOverlay = styled_components_1.default.div(templateObject_6 || (templateObject_6 = __makeTemplateObject(["\n  position: fixed;\n  top: 0;\n  left: 0;\n  z-index: 1;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  width: 100%;\n  height: 100%;\n  background-color: rgba(0, 0, 0, 0.5);\n  color: #fff;\n"], ["\n  position: fixed;\n  top: 0;\n  left: 0;\n  z-index: 1;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  width: 100%;\n  height: 100%;\n  background-color: rgba(0, 0, 0, 0.5);\n  color: #fff;\n"])));
+var PreviewVideo = styled_components_1.default.video(templateObject_7 || (templateObject_7 = __makeTemplateObject(["\n  object-fit: contain;\n  width: 100%;\n"], ["\n  object-fit: contain;\n  width: 100%;\n"])));
+var templateObject_1, templateObject_2, templateObject_3, templateObject_4, templateObject_5, templateObject_6, templateObject_7;
+},{"react":"../node_modules/react/index.js","styled-components":"../node_modules/styled-components/dist/styled-components.browser.esm.js","use-immer":"../node_modules/use-immer/dist/use-immer.module.js","skyway-js":"../node_modules/skyway-js/dist/skyway.js","querystring":"../node_modules/querystring-es3/index.js","copy-text-to-clipboard":"../node_modules/copy-text-to-clipboard/index.js"}],"index.tsx":[function(require,module,exports) {
 "use strict";
 
 var __awaiter = this && this.__awaiter || function (thisArg, _arguments, P, generator) {
@@ -55067,7 +55137,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "62280" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63563" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
