@@ -54518,6 +54518,43 @@ exports.App = function () {
   var videoRef = react_1.useRef(null);
   useAsyncEffect(function () {
     return __awaiter(void 0, void 0, void 0, function () {
+      var e_1;
+      return __generator(this, function (_a) {
+        switch (_a.label) {
+          case 0:
+            _a.trys.push([0, 2,, 3]);
+
+            return [4
+            /*yield*/
+            , navigator.mediaDevices.getUserMedia({
+              video: true,
+              audio: true
+            })];
+
+          case 1:
+            _a.sent();
+
+            return [3
+            /*break*/
+            , 3];
+
+          case 2:
+            e_1 = _a.sent();
+            alert("カメラとマイクの利用を許可してください");
+            return [3
+            /*break*/
+            , 3];
+
+          case 3:
+            return [2
+            /*return*/
+            ];
+        }
+      });
+    });
+  }, []);
+  useAsyncEffect(function () {
+    return __awaiter(void 0, void 0, void 0, function () {
       var devices;
       return __generator(this, function (_a) {
         switch (_a.label) {
@@ -54881,7 +54918,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "58576" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52004" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
@@ -55058,4 +55095,4 @@ function hmrAcceptRun(bundle, id) {
   }
 }
 },{}]},{},["../node_modules/parcel-bundler/src/builtins/hmr-runtime.js","index.tsx"], null)
-//# sourceMappingURL=src.f69400ca.js.map
+//# sourceMappingURL=/src.f69400ca.js.map
