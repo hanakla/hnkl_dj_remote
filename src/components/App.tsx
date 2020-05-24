@@ -10,6 +10,7 @@ import styled, { createGlobalStyle } from "styled-components";
 import { useImmer } from "use-immer";
 import Peer, { MediaConnection } from "skyway-js";
 import qs from "querystring";
+import copy from "copy-text-to-clipboard";
 
 enum StorageKey {
   videoDeviceId = "videoDeviceId",
@@ -147,6 +148,12 @@ export const App = () => {
     []
   );
 
+  const handleClickShareLink = useCallback(() => {
+    const port = location.port !== "" ? `:${location.port}` : "";
+    const url = `${location.protocol}//${location.hostname}${port}${location.pathname}`;
+    copy(`${url}?host_id=${state.peerId}`);
+  }, [state]);
+
   return (
     <Root>
       <GlobalStyle />
@@ -154,8 +161,14 @@ export const App = () => {
       <MetaArea disabled={state.status === "connected"}>
         <div>
           <div>
-            PeerId:
-            <input value={state.peerId} readOnly />
+            PeerId: <input value={state.peerId} readOnly />
+            <Button
+              type="button"
+              onClick={handleClickShareLink}
+              style={{ marginLeft: "4px" }}
+            >
+              ゲスト招待URLをコピー
+            </Button>
           </div>
           <div>
             接続先Id:{" "}
@@ -164,14 +177,18 @@ export const App = () => {
               value={state.theirId}
               onChange={handleChangeTheirId}
             />
-            <button type="button" onClick={handleConnect}>
+            <Button
+              type="button"
+              onClick={handleConnect}
+              style={{ marginLeft: "4px" }}
+            >
               接続
-            </button>
+            </Button>
           </div>
         </div>
         <div style={{ marginLeft: "auto" }}>
           <div>
-            Video:
+            ビデオ入力:
             <select onChange={handleChangeVideoDevice}>
               {videoDevices.map((dev) => (
                 <option
@@ -184,7 +201,7 @@ export const App = () => {
             </select>
           </div>
           <div>
-            Audio:
+            オーディオ入力:
             <select onChange={handleChangeAudioDevice}>
               {audioDevices.map((dev) => (
                 <option
@@ -235,6 +252,19 @@ const Root = styled.div`
   height: 100%;
   background-color: #111;
   color: #fff;
+`;
+
+const Button = styled.button`
+  background-color: #fff;
+  line-height: 1.4;
+  display: inline-block;
+  border-radius: 6px;
+  padding: 2px 8px;
+  outline: none;
+
+  &:active {
+    background-color: #ddd;
+  }
 `;
 
 const MetaArea = styled.div<{ disabled: boolean }>`
