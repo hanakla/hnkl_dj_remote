@@ -27,7 +27,7 @@ const useAsyncEffect = (callback: any, deps: any[]) => {
 export const App = () => {
   const [state, setState] = useImmer<State>({
     peerId: "",
-    theirId: localStorage.getItem(StorageKey.theirId) ?? null,
+    theirId: localStorage.getItem(StorageKey.theirId) ?? "",
     audioDeviceId: localStorage.getItem(StorageKey.audioDeviceId) ?? null,
     videoDeviceId: localStorage.getItem(StorageKey.videoDeviceId) ?? null,
     status: "pause",
