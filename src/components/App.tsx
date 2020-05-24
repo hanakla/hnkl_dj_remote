@@ -102,7 +102,14 @@ export const App = () => {
 
     streamRef.current = await navigator.mediaDevices.getUserMedia({
       video: { deviceId: state.videoDeviceId, width: 1280, height: 720 },
-      audio: { deviceId: state.audioDeviceId },
+      audio: {
+        deviceId: state.audioDeviceId,
+        echoCancellation: false,
+        sampleRate: 48000,
+        sampleSize: 320,
+        channelCount: 2,
+        autoGainControl: false,
+      },
     });
 
     mediaConenction.current = peerRef.current.call(
@@ -110,6 +117,7 @@ export const App = () => {
       streamRef.current,
       {
         audioBandwidth: 320,
+        audioCodec: "opus",
       }
     );
 
