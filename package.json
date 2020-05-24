@@ -1,0 +1,31 @@
+{
+  "name": "hnkl_dj_remote",
+  "version": "0.0.0",
+  "description": "#hnkl_dj high-quality remote live stream system",
+  "main": "index.js",
+  "repository": "git@github.com:hanakla/hnkl_dj_remote.git",
+  "author": "Hanakla <8597982+hanakla@users.noreply.github.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "parcel src/index.html",
+    "deploy": "gh-pages -d dist"
+  },
+  "devDependencies": {
+    "@types/domready": "1.0.0",
+    "@types/react": "16.9.35",
+    "@types/react-dom": "16.9.8",
+    "@types/styled-components": "5.1.0",
+    "gh-pages": "^2.2.0",
+    "parcel-bundler": "^1.12.4",
+    "typescript": "^3.9.3"
+  },
+  "dependencies": {
+    "domready": "^1.0.8",
+    "immer": "^6.0.8",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "skyway-js": "^2.0.5",
+    "styled-components": "^5.1.0",
+    "use-immer": "^0.4.0"
+  }
+}
