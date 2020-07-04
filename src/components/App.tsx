@@ -23,7 +23,7 @@ interface State {
   theirId: string;
   audioDeviceId: string | null;
   videoDeviceId: string | null;
-  status: "pause" | "sending" | "connected";
+  status: "pause" | "sending" | "clientConnected";
 }
 
 const useAsyncEffect = (callback: any, deps: any[]) => {
@@ -36,7 +36,7 @@ export const App = () => {
   const query = useMemo(() => qs.parse(location.search.slice(1)), []);
 
   const [state, setState] = useImmer<State>({
-    peerId: query.peer_id ?? null,
+    peerId: (query.peer_id as string) ?? null,
     theirId:
       (query.host_id as string) ??
       localStorage.getItem(StorageKey.theirId) ??
@@ -80,7 +80,7 @@ export const App = () => {
         videoRef.current.srcObject = stream;
         videoRef.current.play();
         setState((state) => {
-          state.status = "connected";
+          state.status = "clientConnected";
         });
       });
     });
@@ -167,64 +167,66 @@ export const App = () => {
     <Root>
       <GlobalStyle />
 
-      <MetaArea disabled={state.status === "connected"}>
-        <div>
+      {state.status !== "clientConnected" && (
+        <MetaArea disabled={state.status === "sending"}>
           <div>
-            PeerId: <input value={state.peerId} readOnly />
-            <Button
-              type="button"
-              onClick={handleClickShareLink}
-              style={{ marginLeft: "4px" }}
-            >
-              ゲスト招待URLをコピー
-            </Button>
+            <div>
+              PeerId: <input value={state.peerId} readOnly />
+              <Button
+                type="button"
+                onClick={handleClickShareLink}
+                style={{ marginLeft: "4px" }}
+              >
+                ゲスト招待URLをコピー
+              </Button>
+            </div>
+            <div>
+              接続先Id:{" "}
+              <input
+                type="text"
+                value={state.theirId}
+                onChange={handleChangeTheirId}
+              />
+              <Button
+                type="button"
+                onClick={handleConnect}
+                style={{ marginLeft: "4px" }}
+              >
+                接続
+              </Button>
+            </div>
           </div>
-          <div>
-            接続先Id:{" "}
-            <input
-              type="text"
-              value={state.theirId}
-              onChange={handleChangeTheirId}
-            />
-            <Button
-              type="button"
-              onClick={handleConnect}
-              style={{ marginLeft: "4px" }}
-            >
-              接続
-            </Button>
+          <div style={{ marginLeft: "auto" }}>
+            <div>
+              ビデオ入力:
+              <select onChange={handleChangeVideoDevice}>
+                {videoDevices.map((dev) => (
+                  <option
+                    selected={dev.deviceId === state.videoDeviceId}
+                    value={dev.deviceId}
+                  >
+                    {dev.label ?? dev.deviceId}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              オーディオ入力:
+              <select onChange={handleChangeAudioDevice}>
+                {audioDevices.map((dev) => (
+                  <option
+                    selected={dev.deviceId === state.audioDeviceId}
+                    value={dev.deviceId}
+                  >
+                    {dev.label ?? dev.deviceId}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
-        </div>
-        <div style={{ marginLeft: "auto" }}>
-          <div>
-            ビデオ入力:
-            <select onChange={handleChangeVideoDevice}>
-              {videoDevices.map((dev) => (
-                <option
-                  selected={dev.deviceId === state.videoDeviceId}
-                  value={dev.deviceId}
-                >
-                  {dev.label ?? dev.deviceId}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            オーディオ入力:
-            <select onChange={handleChangeAudioDevice}>
-              {audioDevices.map((dev) => (
-                <option
-                  selected={dev.deviceId === state.audioDeviceId}
-                  value={dev.deviceId}
-                >
-                  {dev.label ?? dev.deviceId}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-      </MetaArea>
-      <PreviewArea>
+        </MetaArea>
+      )}
+      <PreviewArea fullview={state.status === "clientConnected"}>
         {state.status === "sending" && (
           <SendingOverlay>接続されています</SendingOverlay>
         )}
@@ -287,14 +289,15 @@ const MetaArea = styled.div<{ disabled: boolean }>`
   ${({ disabled }) => disabled && `opacity: .5;`}
 `;
 
-const PreviewArea = styled.div`
+const PreviewArea = styled.div<{ fullview: boolean }>`
   position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
   width: 100%;
   height: 100%;
-  padding: 16px;
+
+  ${({ fullview }) => !fullview && `padding: 16px;`}
 `;
 
 const SendingOverlay = styled.div`
